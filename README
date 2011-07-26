@@ -1,0 +1,2 @@
+This script takes a list of artists as input (one artist per line) and searches
+for them on Spotify, determining how many of the given artists are available.
