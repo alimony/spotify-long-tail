@@ -10,6 +10,7 @@ Code by Markus Amalthea Magnuson <markus.magnuson@gmail.com>
 import sys
 import spotimeta
 import time
+import urllib2
 
 if (len(sys.argv) > 1):
     path = sys.argv[1]
@@ -28,11 +29,24 @@ metacache = {}
 metadata = spotimeta.Metadata(cache=metacache)
 
 # let's search
-no_found = 0.0 # use a float to enable true division when printing results
-for counter, line in enumerate(f, start = 1):
+no_found = 0.0  # use a float to enable true division when printing results
+for counter, line in enumerate(f, start=1):
     line = line.strip()
     print "Searching for '%s' (%i of %i)" % (line, counter, no_lines),
-    data = metadata.search_artist(line.decode('utf-8'))
+
+    attempts = 0
+    success = False
+    while attempts < 5:
+        try:
+            data = metadata.search_artist(line.decode('utf-8'))
+            success = True
+            break
+        except urllib2.HTTPError:
+            attempts += 1
+
+    if not success:
+        continue
+
     if data['total_results'] > 0:
         print "\nFound:"
         for result in data['result']:
@@ -40,9 +54,10 @@ for counter, line in enumerate(f, start = 1):
         no_found += 1
     else:
         print "[not found]"
+
     print "\n",
-    time.sleep(0.25) # avoid hammering the spotify server
+    time.sleep(0.1)  # avoid hammering the spotify server
 
 # print results
 print 'Found %i out of %i artists (%.2f%%)' % \
-    (no_found, no_lines, (no_found/no_lines) * 100)
+    (no_found, no_lines, (no_found / no_lines) * 100)
