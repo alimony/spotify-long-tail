@@ -4,21 +4,22 @@
 This script takes a list of artists as input (one artist per line) and searches
 for them on Spotify, determining how many of the given artists are available.
 
-Code by Markus Amalthea Magnuson <markus.magnuson@gmail.com>
+Code by Markus Amalthea Magnuson <markus@polyscopic.works>
 """
 
 import sys
-import spotimeta
 import time
 import urllib2
 
-if (len(sys.argv) > 1):
+import spotimeta
+
+if len(sys.argv) > 1:
     path = sys.argv[1]
 else:
     sys.exit("You must specify an input file as first argument.")
 
 # open artist list, count lines and reset line pointer
-f = open(path, 'r')
+f = open(path, "r")
 no_lines = len(f.readlines())
 if no_lines == 0:
     sys.exit("The input file seems to be empty.")
@@ -38,7 +39,7 @@ for counter, line in enumerate(f, start=1):
     success = False
     while attempts < 5:
         try:
-            data = metadata.search_artist(line.decode('utf-8'))
+            data = metadata.search_artist(line.decode("utf-8"))
             success = True
             break
         except urllib2.HTTPError:
@@ -47,10 +48,10 @@ for counter, line in enumerate(f, start=1):
     if not success:
         continue
 
-    if data['total_results'] > 0:
+    if data["total_results"] > 0:
         print "\nFound:"
-        for result in data['result']:
-            print "    %s" % (result['name'])
+        for result in data["result"]:
+            print "    %s" % (result["name"])
         no_found += 1
     else:
         print "[not found]"
@@ -59,5 +60,8 @@ for counter, line in enumerate(f, start=1):
     time.sleep(0.1)  # avoid hammering the spotify server
 
 # print results
-print 'Found %i out of %i artists (%.2f%%)' % \
-    (no_found, no_lines, (no_found / no_lines) * 100)
+print "Found %i out of %i artists (%.2f%%)" % (
+    no_found,
+    no_lines,
+    (no_found / no_lines) * 100,
+)
